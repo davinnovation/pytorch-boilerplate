@@ -1,0 +1,6 @@
+torch
+torchvision
+omegaconf==2.0.0rc6
+pytorch-lightning==0.7.6
+imgaug
+albumentations

@@ -1,0 +1,3 @@
+{
+    "train.train_batch_size":{"_type":"choice","_value":[10,100,1000]}
+}
