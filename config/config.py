@@ -5,7 +5,7 @@ from omegaconf import MISSING
 @dataclass
 class TrainConfig:
     batch_size: int = 256
-    epoch: int = 10
+    epoch: int = 1
 
 
 @dataclass
@@ -21,14 +21,14 @@ class TestConfig:
 @dataclass
 class HWConfig:
     gpu_idx: str = "0"
-    num_workers: int = 20
+    num_workers: int = 10
 
 
 @dataclass
 class NetworkConfig:  # flexible
     network: str = "squeezenet"
     checkpoint: str = ""
-    num_classes: int = 20
+    num_classes: int = 10
 
 
 @dataclass
@@ -47,7 +47,7 @@ class OptConfig:  # flexible
 class LogConfig:
     project_name: str = "with_aug"
     train_log_freq: int = 100
-    val_log_freq_epoch: int = 10
+    val_log_freq_epoch: int = 1
 
 
 @dataclass

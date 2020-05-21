@@ -1,7 +1,7 @@
 authorName: default
 experimentName: example_mnist
 trialConcurrency: 1
-maxExecDuration: 1h
+maxExecDuration: 5h
 maxTrialNum: 10
 #choice: local, remote, pai
 trainingServicePlatform: local
@@ -13,4 +13,4 @@ tuner:
 trial:
   command: python run_nni.py
   codeDir: .
-  gpuNum: 0
+  gpuNum: 1

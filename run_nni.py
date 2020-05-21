@@ -1,5 +1,11 @@
+import os
+
+os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
+
 from omegaconf import OmegaConf
 import nni
+
+from flashlight.runner import main_pl
 
 from config import config as dc
 
@@ -24,8 +30,11 @@ def _main(cfg=dc.DefaultConfig) -> None:
     params = nni.get_next_parameter()
     params = params_intp(params)
     cfg = OmegaConf.structured(cfg)
-    cfg = OmegaConf.merge(cfg, params)
-    nni.report_final_result(cfg.train.train_batch_size)
+    args = OmegaConf.merge(cfg, params)
+    print(args)
+    ml = main_pl.MainPL(args.train, args.val, args.test, args.hw, args.network, args.data, args.opt, args.log)
+    final_result = ml.run()
+    nni.report_final_result
 
 
 if __name__ == "__main__":

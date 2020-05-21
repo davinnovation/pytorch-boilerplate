@@ -1,4 +1,8 @@
-FROM anibali/pytorch:1.5.0-cuda10.2
+FROM floydhub/pytorch:1.5.0-gpu.cuda10cudnn7-py3.55
 
-git clone https://github.com/davinnovation/pytorch-boilerplate
-cd pytorch-boilerplate
+RUN mkdir app
+WORKDIR app
+RUN git clone https://github.com/davinnovation/pytorch-boilerplate
+WORKDIR pytorch-boilerplate
+
+RUN pip install -r requirements.txt

@@ -19,6 +19,7 @@ class PL(pl.LightningModule):
         self.val_best_score = 0.0
 
         self.loss = nn.CrossEntropyLoss()  # TODO HardCoded
+        self.final_target = 0
 
     def forward(self, batch, network):
         img = batch[0]
@@ -71,9 +72,9 @@ class PL(pl.LightningModule):
         return {"test_loss": loss}
 
     def test_epoch_end(self, outputs):
-
         avg_loss = torch.stack([x["test_loss"] for x in outputs]).mean()
         logs = {"avg_test_loss": avg_loss}
+        self.final_target = float(avg_loss)
         return {"avg_test_loss": avg_loss, "log": logs, "progress_bar": logs}
 
     def configure_optimizers(self):  # require
