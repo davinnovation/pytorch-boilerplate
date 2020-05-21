@@ -34,7 +34,7 @@ def _main(cfg=dc.DefaultConfig) -> None:
     print(args)
     ml = main_pl.MainPL(args.train, args.val, args.test, args.hw, args.network, args.data, args.opt, args.log)
     final_result = ml.run()
-    nni.report_final_result
+    nni.report_final_result(final_result)
 
 
 if __name__ == "__main__":
