@@ -1,6 +1,5 @@
-torch
-torchvision
+torch==1.5.0
+torchvision==0.6.0
 omegaconf==2.0.0rc6
 pytorch-lightning==0.7.6
-imgaug
 albumentations

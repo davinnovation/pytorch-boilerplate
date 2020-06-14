@@ -1,6 +1,6 @@
 import os
 
-os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
+os.environ["KMP_DUPLICATE_LIB_OK"] = "True"  # NOT Safe
 
 from omegaconf import OmegaConf
 import nni
@@ -10,7 +10,7 @@ from flashlight.runner import main_pl
 from config import config as dc
 
 
-def params_intp(params):
+def search_params_intp(params):
     ret = {}
     for param in params.keys():
         # param : "train.batch"
@@ -28,11 +28,13 @@ def params_intp(params):
 
 def _main(cfg=dc.DefaultConfig) -> None:
     params = nni.get_next_parameter()
-    params = params_intp(params)
+    params = search_params_intp(params)
     cfg = OmegaConf.structured(cfg)
     args = OmegaConf.merge(cfg, params)
     print(args)
-    ml = main_pl.MainPL(args.train, args.val, args.test, args.hw, args.network, args.data, args.opt, args.log)
+    ml = main_pl.MainPL(
+        args.train, args.val, args.test, args.hw, args.network, args.data, args.opt, args.log, args.seed
+    )
     final_result = ml.run()
     nni.report_final_result(final_result)
 

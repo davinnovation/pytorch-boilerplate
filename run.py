@@ -13,12 +13,11 @@ def _main(cfg=dc.DefaultConfig) -> None:
     args = OmegaConf.structured(cfg)
     args.merge_with_cli()
 
-    ml = main_pl.MainPL(args.train, args.val, args.test, args.hw, args.network, args.data, args.opt, args.log)
+    ml = main_pl.MainPL(
+        args.train, args.val, args.test, args.hw, args.network, args.data, args.opt, args.log, args.seed
+    )
     ml.run()
 
 
 if __name__ == "__main__":
-    import os
-
-    os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
     _main()

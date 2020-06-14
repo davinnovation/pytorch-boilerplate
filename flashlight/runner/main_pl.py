@@ -15,30 +15,30 @@ from ..dataloader import get_datalaoder
 
 from .pl import PL
 
+from pytorch_lightning import Trainer, seed_everything
+from pytorch_lightning.logging import TensorBoardLogger
+
 
 class MainPL:
     def __init__(self, train, val, test, hw, network, data, opt, log, seed: int = None) -> None:
         if seed:
             self.fix_seed(seed)
 
-        self.hw_args = self.__hw_intp(hw)
-        self.data_args = self.__data_intp(data)
+        self.hw_args = self._hw_intp(hw)
+        self.data_args = self._data_intp(data)
 
-        self.train_args = self.__train_intp(train, self.data_args["data"], self.hw_args["num_workers"])
-        self.val_args = self.__val_intp(val, self.data_args["data"], self.hw_args["num_workers"])
-        self.test_args = self.__test_intp(test, self.data_args["data"], self.hw_args["num_workers"])
+        self.train_args = self._train_intp(train, self.data_args["data"], self.hw_args["num_workers"])
+        self.val_args = self._val_intp(val, self.data_args["data"], self.hw_args["num_workers"])
+        self.test_args = self._test_intp(test, self.data_args["data"], self.hw_args["num_workers"])
 
-        self.network_args = self.__network_intp(network)
-        self.opt_args = self.__opt_intp(opt, self.network_args["network"])
-        self.log_args = self.__log_intp(log)
+        self.network_args = self._network_intp(network)
+        self.opt_args = self._opt_intp(opt, self.network_args["network"])
+        self.log_args = self._log_intp(log)
 
-    def fix_seed(self, seed):
-        random.seed(seed)
-        np.random.seed(seed)
-        torch.manual_seed(seed)
-        cudnn.deterministic = True
+    def fix_seed(self, seed=42):
+        seed_everything(seed)
 
-    def __hw_intp(self, args):
+    def _hw_intp(self, args):
         gpu_idx = [int(gpu) for gpu in args.gpu_idx.split(",") if gpu != ""]
         return {
             "gpu_idx": gpu_idx if len(gpu_idx) > 0 else None,
@@ -46,13 +46,13 @@ class MainPL:
             "gpu_on": True if len(gpu_idx) > 0 else False,
         }
 
-    def __data_intp(self, args):
+    def _data_intp(self, args):
         project_name = args.project_name
         data = get_datalaoder
 
         return {"data": data, "ds_name": args.ds_name}
 
-    def __train_intp(self, args, data, num_workers):
+    def _train_intp(self, args, data, num_workers):
         return {
             "dataloader": torch.utils.data.DataLoader(
                 data(data=self.data_args["ds_name"], split="train"), batch_size=args.batch_size, num_workers=num_workers
@@ -60,21 +60,21 @@ class MainPL:
             "epoch": args.epoch,
         }
 
-    def __val_intp(self, args, data, num_workers):
+    def _val_intp(self, args, data, num_workers):
         return {
             "dataloader": torch.utils.data.DataLoader(
                 data(data=self.data_args["ds_name"], split="val"), batch_size=args.batch_size, num_workers=num_workers
             )
         }
 
-    def __test_intp(self, args, data, num_workers):
+    def _test_intp(self, args, data, num_workers):
         return {
             "dataloader": torch.utils.data.DataLoader(
                 data(data=self.data_args["ds_name"], split="test"), batch_size=args.batch_size, num_workers=num_workers
             )
         }
 
-    def __network_intp(self, args):
+    def _network_intp(self, args):
         network = args.network
         del args["network"]
         checkpoint = args.checkpoint
@@ -86,7 +86,7 @@ class MainPL:
         assert network != None
         return {"network": network, "network_option": network_option_dict}
 
-    def __opt_intp(self, args, network):
+    def _opt_intp(self, args, network):
         from ..utils import func
 
         opt = args.opt
@@ -98,7 +98,7 @@ class MainPL:
 
         return {"opt": opt}
 
-    def __log_intp(self, args):
+    def _log_intp(self, args):
         run_only_test = False
         if "test_dir" in args.keys():
             run_only_test = True
@@ -110,9 +110,6 @@ class MainPL:
         }
 
     def run(self, profile=True):
-        from pytorch_lightning import Trainer
-        from pytorch_lightning.logging import TensorBoardLogger
-
         network = self.network_args["network"]
         optimizer = self.opt_args["opt"]
         dataloader = {
@@ -136,7 +133,7 @@ class MainPL:
             min_epochs=self.train_args["epoch"],
             log_save_interval=1,
             row_log_interval=1,
-            profiler=profile
+            profiler=profile,
         )
 
         trainer.fit(pl)
@@ -146,9 +143,6 @@ class MainPL:
         return pl.final_target
 
     def run_pretrain_routine(self):
-        from pytorch_lightning import Trainer
-        from pytorch_lightning.logging import TensorBoardLogger
-
         network = self.network_args["network"]
         optimizer = self.opt_args["opt"]
         dataloader = {
@@ -172,7 +166,7 @@ class MainPL:
             min_epochs=self.train_args["epoch"],
             log_save_interval=1,
             row_log_interval=1,
-            profile=True
+            profile=True,
         )
 
         trainer.run_pretrain_routine(pl, False)

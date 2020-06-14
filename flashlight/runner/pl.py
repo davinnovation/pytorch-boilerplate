@@ -19,6 +19,8 @@ class PL(pl.LightningModule):
         self.val_best_score = 0.0
 
         self.loss = nn.CrossEntropyLoss()  # TODO HardCoded
+
+        # related to NNI
         self.final_target = 0
 
     def forward(self, batch, network):

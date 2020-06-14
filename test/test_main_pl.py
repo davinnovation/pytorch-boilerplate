@@ -22,5 +22,6 @@ def test_mainpl():
     ml = main_pl.MainPL(args.train, args.val, args.test, args.hw, args.network, args.data, args.opt, args.log)
     assert ml.run_pretrain_routine() == True
 
+
 if __name__ == "__main__":
     test_mainpl()

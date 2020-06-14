@@ -5,7 +5,7 @@ from omegaconf import MISSING
 @dataclass
 class TrainConfig:
     batch_size: int = 256
-    epoch: int = 1
+    epoch: int = 50
 
 
 @dataclass
@@ -29,6 +29,7 @@ class NetworkConfig:  # flexible
     network: str = "squeezenet"
     checkpoint: str = ""
     num_classes: int = 10
+    version: str = "1_0"
 
 
 @dataclass
@@ -60,3 +61,4 @@ class DefaultConfig:
     data: DataConfig = DataConfig()
     opt: OptConfig = OptConfig()
     log: LogConfig = LogConfig()
+    seed: str = 42
