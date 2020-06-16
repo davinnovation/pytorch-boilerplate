@@ -47,13 +47,46 @@ for detail, check `config/config.py`
 
 `flashlight.network.__init__.py`
 
-![image](https://user-images.githubusercontent.com/3917185/84722900-61a46700-afbf-11ea-9fda-9a5801eb2c1e.png)
+```python
+"""Network Define"""
+# Add {"Network Name" : and nn.Module without initalize}
+def _get_squeezenet(num_classes, version:str="1_0", pretrained=False, progress=True):
+    VERSION = {
+        "1_0" : torchvision.models.squeezenet1_0,
+        "1_1" : torchvision.models.squeezenet1_1
+    }
+
+    return VERSION[version](pretrained=pretrained, progress=progress, num_classes=num_classes)
+
+NETWORK_DICT = {
+    "squeezenet": _get_squeezenet
+}
+```
 
 - Adding Dataset
 
 `flashlight.dataloader.__init__.py`
 
-![image](https://user-images.githubusercontent.com/3917185/84722792-2f930500-afbf-11ea-9ea1-3bbe25905d96.png)
+```python
+""" Dataset """
+# Add {Dataset Name : torch.utils.data.Dataset}
+DATA_DICT = {"MNIST": torchvision.datasets.MNIST}
+
+""" Dataset Transform """
+
+transform = torchvision.transforms.Compose(
+    [torchvision.transforms.Grayscale(num_output_channels=3), torchvision.transforms.ToTensor()]
+)
+
+def get_datalaoder(data, root="../datasets/", split="train"):
+    if data in ["MNIST"]:  # if torchvision
+        if split == "val":
+            print(f"{data} dataset dosen't support validation set. val replaced by train")
+        if split in ["train", "val"]:
+            return DATA_DICT[data](root=root, train=True, download=True, transform=transform)
+        else:
+            return DATA_DICT[data](root=root, train=False, download=True, transform=transform)
+```
 
 - Change Loss, forward/backward... [Research Code]
 
