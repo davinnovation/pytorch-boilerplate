@@ -110,7 +110,7 @@ class MainPL:
         }
 
     def run(self, profile=True):
-        network = self.network_args["network"]
+        network = self.network_args
         optimizer = self.opt_args["opt"]
         dataloader = {
             "train": self.train_args["dataloader"],
@@ -141,34 +141,3 @@ class MainPL:
         trainer.test(pl)
 
         return pl.final_target
-
-    def run_pretrain_routine(self):
-        network = self.network_args["network"]
-        optimizer = self.opt_args["opt"]
-        dataloader = {
-            "train": self.train_args["dataloader"],
-            "val": self.val_args["dataloader"],
-            "test": self.test_args["dataloader"],
-        }
-
-        pl = PL(
-            network=network,
-            dataloader=dataloader,
-            optimizer=optimizer,
-            train_log_interval=self.log_args["train_log_freq"],
-        )
-
-        trainer = Trainer(
-            logger=TensorBoardLogger(save_dir="./Logs", name=self.log_args["project_name"]),
-            gpus=self.hw_args["gpu_idx"],
-            check_val_every_n_epoch=self.log_args["val_log_freq_epoch"],
-            max_epochs=self.train_args["epoch"],
-            min_epochs=self.train_args["epoch"],
-            log_save_interval=1,
-            row_log_interval=1,
-            profile=True,
-        )
-
-        trainer.run_pretrain_routine(pl, False)
-
-        return True

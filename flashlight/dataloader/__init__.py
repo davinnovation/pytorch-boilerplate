@@ -2,12 +2,15 @@ import albumentations as AB
 from albumentations.pytorch import ToTensor, ToTensorV2
 import torchvision
 
+""" Dataset """
+# Add {Dataset Name : torch.utils.data.Dataset}
 DATA_DICT = {"MNIST": torchvision.datasets.MNIST}
+
+""" Dataset Transform """
 
 transform = torchvision.transforms.Compose(
     [torchvision.transforms.Grayscale(num_output_channels=3), torchvision.transforms.ToTensor()]
 )
-
 
 def get_datalaoder(data, root="../datasets/", split="train"):
     if data in ["MNIST"]:  # if torchvision

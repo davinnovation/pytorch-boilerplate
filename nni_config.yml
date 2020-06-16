@@ -1,4 +1,4 @@
-authorName: default
+authorName: davinnovation
 experimentName: example_mnist
 trialConcurrency: 1
 maxExecDuration: 5h

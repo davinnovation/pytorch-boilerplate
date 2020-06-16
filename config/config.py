@@ -5,7 +5,7 @@ from omegaconf import MISSING
 @dataclass
 class TrainConfig:
     batch_size: int = 256
-    epoch: int = 50
+    epoch: int = 5
 
 
 @dataclass

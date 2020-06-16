@@ -8,7 +8,8 @@ import pytorch_lightning as pl
 class PL(pl.LightningModule):
     def __init__(self, network, dataloader, optimizer, train_log_interval):
         super(PL, self).__init__()
-        self.network = network
+        self.network = network['network']
+        self.hparams = dict(network['network_option'])
         self.dataloader = dataloader
         self.optimizer = optimizer
         self.train_log_interval = train_log_interval
@@ -65,8 +66,8 @@ class PL(pl.LightningModule):
     def validation_epoch_end(self, outputs):
 
         avg_loss = torch.stack([x["val_loss"] for x in outputs]).mean()
-        logs = {"avg_val_loss": avg_loss}
-        return {"avg_val_loss": avg_loss, "log": logs, "progress_bar": logs}
+        logs = {"val_loss": avg_loss}
+        return {"val_loss": avg_loss, "log": logs, "progress_bar": logs}
 
     def test_step(self, batch, batch_nb):  # optional
         pred, loss = self.forward(batch, self.network)
@@ -75,9 +76,9 @@ class PL(pl.LightningModule):
 
     def test_epoch_end(self, outputs):
         avg_loss = torch.stack([x["test_loss"] for x in outputs]).mean()
-        logs = {"avg_test_loss": avg_loss}
+        logs = {"test_loss": avg_loss}
         self.final_target = float(avg_loss)
-        return {"avg_test_loss": avg_loss, "log": logs, "progress_bar": logs}
+        return {"test_loss": avg_loss, "log": logs, "progress_bar": logs}
 
     def configure_optimizers(self):  # require
         return self.optimizer
@@ -90,13 +91,3 @@ class PL(pl.LightningModule):
 
     def test_dataloader(self):
         return self.dataloader["test"]
-
-    def load_checkpoint(self, path="./checkpoint.pth"):
-        if osp.isfile(path):
-            print("=> Loading checkpoint {}...".format(path))
-            checkpoint = torch.load(path)
-            self.network.load_state_dict(checkpoint["net"])
-            self.optimizer.load_state_dict(checkpoint["opt"])
-            return checkpoint["epoch"]
-        else:
-            raise ValueError("=> No checkpoint found at {}.".format(path))
