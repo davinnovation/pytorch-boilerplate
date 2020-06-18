@@ -6,7 +6,7 @@ The OTHER pytorch boilerplate.
 
 ## Pre-requirements for local [*PRTM!*]
 
-- python 3.6
+- python 3.7
 - pytorch 1.5.0, torchvision 0.6.0 for your OS/CUDA match version
 - ... and install requirements.txt packages `pip install -r requirements.txt`
 
