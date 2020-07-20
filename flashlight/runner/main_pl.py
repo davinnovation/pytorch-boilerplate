@@ -55,7 +55,8 @@ class MainPL:
     def _train_intp(self, args, data, num_workers):
         return {
             "dataloader": torch.utils.data.DataLoader(
-                data(data=self.data_args["ds_name"], split="train"), batch_size=args.batch_size, num_workers=num_workers
+                data(data=self.data_args["ds_name"], split="train"), batch_size=args.batch_size, num_workers=num_workers,
+                pin_memory=self.hw_args['gpu_on']
             ),
             "epoch": args.epoch,
         }
@@ -63,14 +64,16 @@ class MainPL:
     def _val_intp(self, args, data, num_workers):
         return {
             "dataloader": torch.utils.data.DataLoader(
-                data(data=self.data_args["ds_name"], split="val"), batch_size=args.batch_size, num_workers=num_workers
+                data(data=self.data_args["ds_name"], split="val"), batch_size=args.batch_size, num_workers=num_workers,
+                pin_memory=self.hw_args['gpu_on']
             )
         }
 
     def _test_intp(self, args, data, num_workers):
         return {
             "dataloader": torch.utils.data.DataLoader(
-                data(data=self.data_args["ds_name"], split="test"), batch_size=args.batch_size, num_workers=num_workers
+                data(data=self.data_args["ds_name"], split="test"), batch_size=args.batch_size, num_workers=num_workers,
+                pin_memory=self.hw_args['gpu_on']
             )
         }
 
