@@ -47,7 +47,6 @@ class OptConfig:  # flexible
 @dataclass
 class LogConfig:
     project_name: str = "with_aug"
-    train_log_freq: int = 100
     val_log_freq_epoch: int = 1
 
 
