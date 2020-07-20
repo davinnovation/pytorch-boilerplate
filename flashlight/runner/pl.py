@@ -24,15 +24,14 @@ class PL(pl.LightningModule):
         # related to NNI
         self.final_target = 0
 
-    def forward(self, batch, network):
-        img = batch[0]
-        Y = batch[1]
-        pred = network(img)
-        # pred = torch.argmax(pred, 1)
-        return pred, self.loss(pred.float(), Y.long())
+    def forward(self, x):
+        pred = self.network(x)
+        return pred
 
     def training_step(self, batch, batch_nb):
-        pred, loss = self.forward(batch, self.network)
+        pred = self.forward(batch[0]) # == self(batch[0])
+        Y = batch[1]
+        loss = self.loss(pred.float(), Y.long())
         self.train_avg_loss += loss.mean()
         self.train_avg_cnt += 1
 
@@ -59,18 +58,21 @@ class PL(pl.LightningModule):
             torch.cuda.empty_cache()
 
     def validation_step(self, batch, batch_nb):  # optional
-        pred, loss = self.forward(batch, self.network)
-
+        pred = self.forward(batch[0])
+        Y = batch[1]
+        loss = self.loss(pred.float(), Y.long())
+        
         return {"val_loss": loss}
 
     def validation_epoch_end(self, outputs):
-
         avg_loss = torch.stack([x["val_loss"] for x in outputs]).mean()
         logs = {"val_loss": avg_loss}
         return {"val_loss": avg_loss, "log": logs, "progress_bar": logs}
 
     def test_step(self, batch, batch_nb):  # optional
-        pred, loss = self.forward(batch, self.network)
+        pred = self.forward(batch[0])
+        Y = batch[1]
+        loss = self.loss(pred.float(), Y.long())
 
         return {"test_loss": loss}
 
