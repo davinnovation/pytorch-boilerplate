@@ -5,17 +5,13 @@ import torch.nn as nn
 import pytorch_lightning as pl
 
 
-class PL(pl.LightningModule):
-    def __init__(self, network, dataloader, optimizer, train_log_interval):
+class PL(pl.LightningModule): # for classification
+    def __init__(self, network, dataloader, optimizer):
         super(PL, self).__init__()
         self.network = network['network']
         self.hparams = dict(network['network_option'])
         self.dataloader = dataloader
         self.optimizer = optimizer
-        self.train_log_interval = train_log_interval
-        self.get_curidx = lambda x: self.current_epoch * len(self.dataloader["train"]) + x
-        self.train_avg_loss = 0.0
-        self.train_avg_cnt = 0
 
         self.val_best_score = 0.0
 
@@ -32,30 +28,25 @@ class PL(pl.LightningModule):
         pred = self.forward(batch[0]) # == self(batch[0])
         Y = batch[1]
         loss = self.loss(pred.float(), Y.long())
-        self.train_avg_loss += loss.mean()
-        self.train_avg_cnt += 1
 
-        if self.get_curidx(batch_nb) % self.train_log_interval == 0:
-            tensorboard_logs = {"avg_train_loss": self.train_avg_loss / self.train_avg_cnt}
+        return {"loss": loss, "progress_bar": {"train_loss": loss}}
 
-            self.train_avg_loss = 0.0
-            self.train_avg_cnt = 0
-
-            return {
-                "loss": loss,
-                "progress_bar": {"train_loss": loss.item()},
-                "log": tensorboard_logs,
-            }
-
-        return {"loss": loss, "progress_bar": {"train_loss": loss.item()}}
-
+    def training_epoch_end(self, outputs):
+        train_avg_loss = 0
+        for output in outputs:
+            train_avg_loss += output['loss']
+        train_avg_loss /= len(outputs)
+        
+        return {
+            "log": {"train_loss": train_avg_loss.item()},
+            "progress_bar": {"train_loss": train_avg_loss}
+        }
+            
     def optimizer_step(
         self, current_epoch, batch_idx, optimizer, optimizer_idx, second_order_closure=None,
     ):
         optimizer.step()
         optimizer.zero_grad()
-        if torch.cuda.device_count() > 0:
-            torch.cuda.empty_cache()
 
     def validation_step(self, batch, batch_nb):  # optional
         pred = self.forward(batch[0])
@@ -67,6 +58,7 @@ class PL(pl.LightningModule):
     def validation_epoch_end(self, outputs):
         avg_loss = torch.stack([x["val_loss"] for x in outputs]).mean()
         logs = {"val_loss": avg_loss}
+        
         return {"val_loss": avg_loss, "log": logs, "progress_bar": logs}
 
     def test_step(self, batch, batch_nb):  # optional
@@ -80,6 +72,7 @@ class PL(pl.LightningModule):
         avg_loss = torch.stack([x["test_loss"] for x in outputs]).mean()
         logs = {"test_loss": avg_loss}
         self.final_target = float(avg_loss)
+        
         return {"test_loss": avg_loss, "log": logs, "progress_bar": logs}
 
     def configure_optimizers(self):  # require
