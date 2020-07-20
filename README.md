@@ -21,7 +21,7 @@ for detail, check `config/config.py`
 
 - if docker : `docker pull davinnovation/pytorch-boilerplate:alpha`
 
-1. `python run.py`
+1. `python run.py` or `python -W ignore run.py`
 
 ![image](https://user-images.githubusercontent.com/3917185/84721592-fc9b4200-afbb-11ea-9602-c41dc58f8b8a.png)
 

@@ -55,8 +55,10 @@ class MainPL:
     def _train_intp(self, args, data, num_workers):
         return {
             "dataloader": torch.utils.data.DataLoader(
-                data(data=self.data_args["ds_name"], split="train"), batch_size=args.batch_size, num_workers=num_workers,
-                pin_memory=self.hw_args['gpu_on']
+                data(data=self.data_args["ds_name"], split="train"),
+                batch_size=args.batch_size,
+                num_workers=num_workers,
+                pin_memory=self.hw_args["gpu_on"],
             ),
             "epoch": args.epoch,
         }
@@ -64,26 +66,30 @@ class MainPL:
     def _val_intp(self, args, data, num_workers):
         return {
             "dataloader": torch.utils.data.DataLoader(
-                data(data=self.data_args["ds_name"], split="val"), batch_size=args.batch_size, num_workers=num_workers,
-                pin_memory=self.hw_args['gpu_on']
+                data(data=self.data_args["ds_name"], split="val"),
+                batch_size=args.batch_size,
+                num_workers=num_workers,
+                pin_memory=self.hw_args["gpu_on"],
             )
         }
 
     def _test_intp(self, args, data, num_workers):
         return {
             "dataloader": torch.utils.data.DataLoader(
-                data(data=self.data_args["ds_name"], split="test"), batch_size=args.batch_size, num_workers=num_workers,
-                pin_memory=self.hw_args['gpu_on']
+                data(data=self.data_args["ds_name"], split="test"),
+                batch_size=args.batch_size,
+                num_workers=num_workers,
+                pin_memory=self.hw_args["gpu_on"],
             )
         }
 
     def _network_intp(self, args):
-        network = args.network
-        del args["network"]
-        checkpoint = args.checkpoint
-        del args["checkpoint"]
+        network_option = dict(args)
+        network = network_option["network"]
+        checkpoint = network_option["checkpoint"]
+        del network_option["network"]
+        del network_option["checkpoint"]
 
-        network_option = args
         network_option_dict = check_network_option(network, network_option)
         network = get_network(network, network_option_dict)
         assert network != None
@@ -91,8 +97,8 @@ class MainPL:
 
     def _opt_intp(self, args, network):
         from ..utils import func
-
-        opt = args.opt
+        args = dict(args)
+        opt = args["opt"]
         del args["opt"]
 
         func.function_arg_checker(optim.__dict__[opt], args)
@@ -120,11 +126,7 @@ class MainPL:
             "test": self.test_args["dataloader"],
         }
 
-        pl = PL(
-            network=network,
-            dataloader=dataloader,
-            optimizer=optimizer
-        )
+        pl = PL(network=network, dataloader=dataloader, optimizer=optimizer)
 
         trainer = Trainer(
             logger=TensorBoardLogger(save_dir="./Logs", name=self.log_args["project_name"]),
