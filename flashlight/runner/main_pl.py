@@ -107,7 +107,6 @@ class MainPL:
             run_only_test = True
         return {
             "project_name": args.project_name,
-            "train_log_freq": args.train_log_freq,
             "val_log_freq_epoch": args.val_log_freq_epoch,
             "run_only_test": run_only_test,
         }
@@ -124,8 +123,7 @@ class MainPL:
         pl = PL(
             network=network,
             dataloader=dataloader,
-            optimizer=optimizer,
-            train_log_interval=self.log_args["train_log_freq"],
+            optimizer=optimizer
         )
 
         trainer = Trainer(
