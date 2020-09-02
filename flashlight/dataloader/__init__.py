@@ -9,8 +9,6 @@ import pytorch_lightning as pl
 
 from ..utils import func
 
-from . import coi_dataset
-
 class MNISTDataModule(pl.LightningDataModule):
     def __init__(self, data_dir:str, train_batchsize=32, val_batchsize=32, test_batchsize=32, workers=0):
         super().__init__()
