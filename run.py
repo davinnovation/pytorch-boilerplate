@@ -14,7 +14,7 @@ def _main(cfg=dc.DefaultConfig) -> None:
     args.merge_with_cli()
 
     ml = main_pl.MainPL(
-        args.train, args.val, args.test, args.hw, args.network, args.data, args.opt, args.log, args.seed
+        args.hw, args.network, args.data, args.opt, args.log, args.seed
     )
     ml.run()
 

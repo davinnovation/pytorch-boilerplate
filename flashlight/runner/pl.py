@@ -6,11 +6,10 @@ import pytorch_lightning as pl
 
 
 class PL(pl.LightningModule):  # for classification
-    def __init__(self, network, dataloader, optimizer):
+    def __init__(self, network, optimizer):
         super(PL, self).__init__()
         self.network = network["network"]
         self.hparams = dict(network["network_option"])
-        self.dataloader = dataloader
         self.optimizer = optimizer
 
         self.val_best_score = 0.0
@@ -72,12 +71,3 @@ class PL(pl.LightningModule):  # for classification
 
     def configure_optimizers(self):  # require
         return self.optimizer
-
-    def train_dataloader(self):
-        return self.dataloader["train"]
-
-    def val_dataloader(self):
-        return self.dataloader["val"]
-
-    def test_dataloader(self):
-        return self.dataloader["test"]

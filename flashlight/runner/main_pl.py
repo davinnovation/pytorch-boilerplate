@@ -11,25 +11,20 @@ from torch import optim
 import torchvision
 
 from ..network import *
-from ..dataloader import get_datalaoder
+from ..dataloader import get_data, check_data_option
 
 from .pl import PL
 
 from pytorch_lightning import Trainer, seed_everything
-from pytorch_lightning.logging import TensorBoardLogger
+from pytorch_lightning.loggers import TensorBoardLogger
 
 
 class MainPL:
-    def __init__(self, train, val, test, hw, network, data, opt, log, seed: int = None) -> None:
-        if seed:
-            self.fix_seed(seed)
+    def __init__(self, hw, network, data, opt, log, seed: int = None) -> None:
+        if seed: self.fix_seed(seed)
 
         self.hw_args = self._hw_intp(hw)
         self.data_args = self._data_intp(data)
-
-        self.train_args = self._train_intp(train, self.data_args["data"], self.hw_args["num_workers"])
-        self.val_args = self._val_intp(val, self.data_args["data"], self.hw_args["num_workers"])
-        self.test_args = self._test_intp(test, self.data_args["data"], self.hw_args["num_workers"])
 
         self.network_args = self._network_intp(network)
         self.opt_args = self._opt_intp(opt, self.network_args["network"])
@@ -47,41 +42,13 @@ class MainPL:
         }
 
     def _data_intp(self, args):
-        project_name = args.project_name
-        data = get_datalaoder
-
-        return {"data": data, "ds_name": args.ds_name}
-
-    def _train_intp(self, args, data, num_workers):
-        return {
-            "dataloader": torch.utils.data.DataLoader(
-                data(data=self.data_args["ds_name"], split="train"),
-                batch_size=args.batch_size,
-                num_workers=num_workers,
-                pin_memory=self.hw_args["gpu_on"],
-            ),
-            "epoch": args.epoch,
-        }
-
-    def _val_intp(self, args, data, num_workers):
-        return {
-            "dataloader": torch.utils.data.DataLoader(
-                data(data=self.data_args["ds_name"], split="val"),
-                batch_size=args.batch_size,
-                num_workers=num_workers,
-                pin_memory=self.hw_args["gpu_on"],
-            )
-        }
-
-    def _test_intp(self, args, data, num_workers):
-        return {
-            "dataloader": torch.utils.data.DataLoader(
-                data(data=self.data_args["ds_name"], split="test"),
-                batch_size=args.batch_size,
-                num_workers=num_workers,
-                pin_memory=self.hw_args["gpu_on"],
-            )
-        }
+        data_option = dict(args)
+        del data_option["ds_name"]
+        data_option = check_data_option(args.ds_name, data_option)
+        data = get_data(args.ds_name, data_option)
+        assert data != None
+        
+        return {"data": data}
 
     def _network_intp(self, args):
         network_option = dict(args)
@@ -115,32 +82,28 @@ class MainPL:
             "project_name": args.project_name,
             "val_log_freq_epoch": args.val_log_freq_epoch,
             "run_only_test": run_only_test,
+            "epoch": args.epoch
         }
 
     def run(self, profile=True):
         network = self.network_args
         optimizer = self.opt_args["opt"]
-        dataloader = {
-            "train": self.train_args["dataloader"],
-            "val": self.val_args["dataloader"],
-            "test": self.test_args["dataloader"],
-        }
 
-        pl = PL(network=network, dataloader=dataloader, optimizer=optimizer)
+        pl = PL(network=network, optimizer=optimizer)
 
         trainer = Trainer(
             logger=TensorBoardLogger(save_dir="./Logs", name=self.log_args["project_name"]),
             gpus=self.hw_args["gpu_idx"],
             check_val_every_n_epoch=self.log_args["val_log_freq_epoch"],
-            max_epochs=self.train_args["epoch"],
-            min_epochs=self.train_args["epoch"],
+            max_epochs=self.log_args["epoch"],
+            min_epochs=self.log_args["epoch"],
             log_save_interval=1,
             row_log_interval=1,
             profiler=profile,
         )
 
-        trainer.fit(pl)
+        trainer.fit(pl, self.data_args["data"])
 
-        trainer.test(pl)
+        trainer.test(pl, datamodule=self.data_args["data"])
 
         return pl.final_target

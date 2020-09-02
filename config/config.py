@@ -1,26 +1,9 @@
 from dataclasses import dataclass, field
 from omegaconf import MISSING
 
-
-@dataclass
-class TrainConfig:
-    batch_size: int = 256
-    epoch: int = 5
-
-
-@dataclass
-class ValConfig:
-    batch_size: int = 256
-
-
-@dataclass
-class TestConfig:
-    batch_size: int = 1
-
-
 @dataclass
 class HWConfig:
-    gpu_idx: str = "0"
+    gpu_idx: str = "0,1,2,3"
     num_workers: int = 10
 
 
@@ -28,14 +11,15 @@ class HWConfig:
 class NetworkConfig:  # flexible
     network: str = "squeezenet"
     checkpoint: str = ""
-    num_classes: int = 10
+    num_classes: int = 11
     version: str = "1_0"
 
 
 @dataclass
 class DataConfig:
     ds_name: str = "MNIST"
-    project_name: str = "1st"
+    data_dir: str = "./"
+    train_batchsize: int = 256
 
 
 @dataclass
@@ -48,13 +32,10 @@ class OptConfig:  # flexible
 class LogConfig:
     project_name: str = "with_aug"
     val_log_freq_epoch: int = 1
-
+    epoch: int = 10
 
 @dataclass
 class DefaultConfig:
-    train: TrainConfig = TrainConfig()
-    val: ValConfig = ValConfig()
-    test: TestConfig = TestConfig()
     hw: HWConfig = HWConfig()
     network: NetworkConfig = NetworkConfig()
     data: DataConfig = DataConfig()
