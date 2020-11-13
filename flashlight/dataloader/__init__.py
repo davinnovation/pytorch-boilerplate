@@ -13,7 +13,7 @@ class MNISTDataModule(pl.LightningDataModule):
     def __init__(self, data_dir:str, train_batchsize=32, val_batchsize=32, test_batchsize=32, workers=0):
         super().__init__()
         self.data_dir = data_dir
-        self.transform = transform = torchvision.transforms.Compose(
+        self.transform = torchvision.transforms.Compose(
             [torchvision.transforms.Grayscale(num_output_channels=3), torchvision.transforms.ToTensor()]
         )
         self.train_batchsize = train_batchsize
