@@ -1,4 +1,4 @@
-FROM floydhub/pytorch:1.5.0-gpu.cuda10cudnn7-py3.55
+FROM pytorch/pytorch:1.7.0-cuda11.0-cudnn8-runtime
 
 RUN mkdir app
 WORKDIR app

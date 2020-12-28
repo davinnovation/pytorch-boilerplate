@@ -4,6 +4,15 @@ The OTHER pytorch boilerplate.
 
 ![Untitled](https://user-images.githubusercontent.com/3917185/84566705-4a425f80-adae-11ea-92f5-6290aff0478a.png)
 
+- [x] LightningModule [flashlight/runner/pl.py]
+- [x] Trainer [flashlight/runner/main_pl.py]
+
+- [ ] Accelerators 
+- [ ] Callback
+- [x] Logging [flashlight/runner/pl.py]
+- [ ] Metrics
+- [ ] Plugins
+
 ## Pre-requirements for local [*PRTM!*]
 
 - python 3.5 >

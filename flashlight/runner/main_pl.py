@@ -13,7 +13,7 @@ import torchvision
 from ..network import *
 from ..dataloader import get_data, check_data_option
 
-from .pl import PL
+from .pl import PLModule
 
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -85,11 +85,11 @@ class MainPL:
             "epoch": args.epoch
         }
 
-    def run(self, profile=True):
+    def run(self, profile:bool=True):
         network = self.network_args
         optimizer = self.opt_args["opt"]
 
-        pl = PL(network=network, optimizer=optimizer)
+        plm = PLModule(network=network, optimizer=optimizer)
 
         trainer = Trainer(
             logger=TensorBoardLogger(save_dir="./Logs", name=self.log_args["project_name"]),
@@ -97,13 +97,11 @@ class MainPL:
             check_val_every_n_epoch=self.log_args["val_log_freq_epoch"],
             max_epochs=self.log_args["epoch"],
             min_epochs=self.log_args["epoch"],
-            log_save_interval=1,
-            row_log_interval=1,
             profiler=profile,
         )
 
-        trainer.fit(pl, self.data_args["data"])
+        trainer.fit(plm, datamodule=self.data_args["data"])
 
-        trainer.test(pl, datamodule=self.data_args["data"])
+        trainer.test(plm, datamodule=self.data_args["data"])
 
-        return pl.final_target
+        return plm.final_target

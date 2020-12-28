@@ -3,7 +3,7 @@ from omegaconf import MISSING
 
 @dataclass
 class HWConfig:
-    gpu_idx: str = "0,1,2,3"
+    gpu_idx: str = "0"
     num_workers: int = 10
 
 
